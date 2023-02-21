@@ -3,21 +3,28 @@ header{
     flex-direction: row;
     justify-content: space-evenly;
     align-items: center;
-    background-color: rgb(255, 105, 180);
-    color: blue;
+    background-color: blue;
+    color: white;
+    
+}
+
+a{
+    text-decoration: none;
+    color: white;
 }
 
 #body{
     display: flex;
     flex-direction: row;
     justify-content: space-evenly;
-    background-color: blue;
     padding-top: 5vh;
+    background-color: rgb(226, 229, 222);
 }
 
 .varor{
-    background-color: rgb(255, 105, 180);
-    width: 8vw;
+    background-color: blue;
+    color: white;
+    width: fit-content;
     height: 15vh;
     border-radius: 5px;
     display: flex;

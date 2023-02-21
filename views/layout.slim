@@ -9,6 +9,13 @@ html lang="en"
     body 
         header 
             h1 Icka online 
+            a href="/showlogin"
+                h2 Logga in
+            a href="/showsignup"
+                h2 Skapa konto 
+            - if session[:name] != nil
+               h2 Inloggad som: #{session[:name]} 
             nav
-                a href="/" Handla
+                a href="/" 
+                    h2 Handla
         ==yield
