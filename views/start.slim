@@ -1,5 +1,7 @@
 div id="body"
     -@result.each do |vara|
-        a href="#"  class="varor" 
+        form action="/additem/#{vara[0]}" method="POST" class="varor"
             h2 #{vara[1]}
             p Pris:#{vara[2]}
+            input type="submit" value="Lägg i varukorg"/
+            

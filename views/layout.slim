@@ -16,6 +16,6 @@ html lang="en"
             - if session[:name] != nil
                h2 Inloggad som: #{session[:name]} 
             nav
-                a href="/" 
-                    h2 Handla
+                a href="/kundvagn" 
+                    h2 Kundvagn
         ==yield

@@ -53,3 +53,13 @@ post('/login') do
     end
   
 end
+
+post('/additem/:vara_id') do
+  vara_id = params[:vara_id] 
+  db = SQLite3::Database.new('data/handlaonline.db')
+  vara = db.execute("SELECT * FROM varor WHERE id = ?", vara_id)
+  #Måste lagra användarens varukorg 
+   db.execute("SELECT * FROM anv_varor_relation INNER JOIN varor ON anv_varor_relation.varor_id = ?", vara_id) #Detta väljer de saker som finns i båda 
+
+  redirect('/')
+end

@@ -25,7 +25,7 @@ a{
     background-color: blue;
     color: white;
     width: fit-content;
-    height: 15vh;
+    height: auto;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
