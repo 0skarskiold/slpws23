@@ -8,6 +8,9 @@ enable :sessions
 get('/')  do
     db = SQLite3::Database.new("data/handlaonline.db")
     @result = db.execute("SELECT * FROM varor")
+    if session[:name] == nil
+      redirect('/showlogin')
+    end
     slim(:start)
 end 
 
@@ -47,6 +50,8 @@ post('/login') do
     if BCrypt::Password.new(pwdigest) == password
         name = result["förnamn"]
         session[:name] = name
+        user_id = result["id"]
+        session[:user_id] = user_id
         redirect('/')
     else
       "Fel lösenord"
@@ -58,8 +63,15 @@ post('/additem/:vara_id') do
   vara_id = params[:vara_id] 
   db = SQLite3::Database.new('data/handlaonline.db')
   vara = db.execute("SELECT * FROM varor WHERE id = ?", vara_id)
-  #Måste lagra användarens varukorg 
-   db.execute("SELECT * FROM anv_varor_relation INNER JOIN varor ON anv_varor_relation.varor_id = ?", vara_id) #Detta väljer de saker som finns i båda 
+  user_id = session[:user_id]
+   db.execute("INSERT INTO anv_varor_relation(anv_id, varor_id) VALUES(?, ?)", user_id, vara_id) #Detta väljer de saker som finns i båda 
 
   redirect('/')
+end
+
+get('/kundvagn') do
+  db = SQLite3::Database.new('data/handlaonline.db')
+  anv_varor = db.execute("SELECT varor_id FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
+  session[:varukorg] = anv_varor
+  slim(:kundvagn)
 end
