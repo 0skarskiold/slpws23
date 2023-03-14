@@ -1,4 +1,11 @@
 /Lägga in data från kundvagn med loop 
 / Visa snyggt med minus o plus 
 
-p #{session[:varukorg]}
+p #{session[:varor]} 
+form action="/signup" method="POST"
+    input type="text" name="first_name" placeholder="Förnamn"
+    input type="text" name="last_name" placeholder="Efternamn"
+    input type="text" name="mail" placeholder="Mail"
+    input type="password" name="password" placeholder="Lösenord"
+    input type="password" name="password_confirm" placeholder="Bekräfta lösenord"
+    input type="submit" value="Registrera ny användare"/

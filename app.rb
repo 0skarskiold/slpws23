@@ -6,6 +6,7 @@ enable :sessions
 
 
 get('/')  do
+    #Använder jag db koden någonstans?? kolla
     db = SQLite3::Database.new("data/handlaonline.db")
     @result = db.execute("SELECT * FROM varor")
     if session[:name] == nil
@@ -60,18 +61,27 @@ post('/login') do
 end
 
 post('/additem/:vara_id') do
+  #Lägg till felsökning utifall en användare lägger till en extra vara efterråt 
   vara_id = params[:vara_id] 
-  db = SQLite3::Database.new('data/handlaonline.db')
-  vara = db.execute("SELECT * FROM varor WHERE id = ?", vara_id)
-  user_id = session[:user_id]
-   db.execute("INSERT INTO anv_varor_relation(anv_id, varor_id) VALUES(?, ?)", user_id, vara_id) #Detta väljer de saker som finns i båda 
+  antal_vara = params[:antal]
+  if antal_vara == 0
+    redirect('/')
+  else
+    db = SQLite3::Database.new('data/handlaonline.db')
+    vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
+    user_id = session[:user_id]
+    db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal) VALUES(?, ?, ?)", user_id, vara, antal_vara)  
 
-  redirect('/')
+    redirect('/')
+  end
 end
 
 get('/kundvagn') do
   db = SQLite3::Database.new('data/handlaonline.db')
-  anv_varor = db.execute("SELECT varor_id FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
-  session[:varukorg] = anv_varor
+  anv_varor = db.execute("SELECT varunamn FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
+  anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
+
+  session[:varor] = anv_varor
+  session[:antal_varor] = anv_varor_amount
   slim(:kundvagn)
 end

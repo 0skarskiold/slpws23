@@ -32,3 +32,8 @@ a{
     justify-content: space-evenly;
     align-items: center;
 }
+
+#choose_amount{
+    color: blue;
+    width: 3vw;
+}
