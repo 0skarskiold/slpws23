@@ -78,7 +78,7 @@ end
 
 get('/kundvagn') do
   db = SQLite3::Database.new('data/handlaonline.db')
-  anv_varor = db.execute("SELECT varunamn FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
+  anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
   anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
 
   session[:varor] = anv_varor

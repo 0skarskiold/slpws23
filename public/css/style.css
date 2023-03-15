@@ -37,3 +37,11 @@ a{
     color: blue;
     width: 3vw;
 }
+
+#buy_body{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    padding-top: 5vh;
+    background-color: rgb(226, 229, 222);
+}
