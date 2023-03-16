@@ -60,20 +60,27 @@ post('/login') do
   
 end
 
+
+#Kan absolut slå ihop detta kodblock med det under
 post('/additem/:vara_id') do
   #Lägg till felsökning utifall en användare lägger till en extra vara efterråt 
   vara_id = params[:vara_id] 
   antal_vara = params[:antal]
-  if antal_vara == 0
-    redirect('/')
-  else
-    db = SQLite3::Database.new('data/handlaonline.db')
-    vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
-    user_id = session[:user_id]
-    db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal) VALUES(?, ?, ?)", user_id, vara, antal_vara)  
+  
+  db = SQLite3::Database.new('data/handlaonline.db')
+  vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
+  user_id = session[:user_id]
+  db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal) VALUES(?, ?, ?)", user_id, vara, antal_vara)  
 
-    redirect('/')
-  end
+  redirect('/')
+end
+
+post('/update_varor/:varunamn') do 
+  db = SQLite3::Database.new('data/handlaonline.db')
+  user_id = session[:user_id]
+  antal_vara = params[:antal]
+  db.execute("UPDATE anv_varor_relation SET antal = ? WHERE anv_id = ?", antal_vara, user_id)
+  redirect('/')
 end
 
 get('/kundvagn') do
@@ -84,4 +91,11 @@ get('/kundvagn') do
   session[:varor] = anv_varor
   session[:antal_varor] = anv_varor_amount
   slim(:kundvagn)
+end
+
+post('/delete/:varunamn') do
+  varunamn = params[:varunamn]
+  db = SQLite3::Database.new('data/handlaonline.db')
+  db.execute("DELETE FROM anv_varor_relation WHERE anv_id = ? AND varunamn = ?", session[:user_id], varunamn)
+  redirect('/kundvagn')
 end
