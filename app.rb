@@ -66,14 +66,26 @@ post('/additem/:vara_id') do
   #Lägg till felsökning utifall en användare lägger till en extra vara efterråt 
   vara_id = params[:vara_id] 
   antal_vara = params[:antal]
+  #Is_already: försök hitta varunamnet redan, om false skicka till uodate funktionen
   
   db = SQLite3::Database.new('data/handlaonline.db')
   vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
   user_id = session[:user_id]
-  db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal) VALUES(?, ?, ?)", user_id, vara, antal_vara)  
+
+  #Använder double_check för att kolla om det redan finns varor av samma sort inlagda
+  double_check = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ? AND varunamn = ?", user_id, vara)
+
+  #KOllar om det finns varor av samma sort inlagda tidigare
+  if double_check != []
+    db.execute("UPDATE anv_varor_relation SET antal = ? WHERE varunamn = ? AND anv_id = ?", antal_vara, vara, user_id)
+  else
+    db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal) VALUES(?, ?, ?)", user_id, vara, antal_vara)  
+  end
+  
 
   redirect('/')
 end
+
 
 post('/update_varor/:varunamn') do 
   db = SQLite3::Database.new('data/handlaonline.db')
