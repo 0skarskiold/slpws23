@@ -53,6 +53,7 @@ post('/login') do
         session[:name] = name
         user_id = result["id"]
         session[:user_id] = user_id
+        session[:is_admin] = result["is_admin"]
         redirect('/')
     else
       "Fel lösenord"
@@ -63,13 +64,14 @@ end
 
 #Kan absolut slå ihop detta kodblock med det under
 post('/additem/:vara_id') do
-  #Lägg till felsökning utifall en användare lägger till en extra vara efterråt 
   vara_id = params[:vara_id] 
   antal_vara = params[:antal]
-  #Is_already: försök hitta varunamnet redan, om false skicka till uodate funktionen
+  
+
   
   db = SQLite3::Database.new('data/handlaonline.db')
   vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
+  pris = db.execute("SELECT pris FROM varor WHERE id = ?", vara_id)
   user_id = session[:user_id]
 
   #Använder double_check för att kolla om det redan finns varor av samma sort inlagda
@@ -79,7 +81,7 @@ post('/additem/:vara_id') do
   if double_check != []
     db.execute("UPDATE anv_varor_relation SET antal = ? WHERE varunamn = ? AND anv_id = ?", antal_vara, vara, user_id)
   else
-    db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal) VALUES(?, ?, ?)", user_id, vara, antal_vara)  
+    db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal, enskilt_pris) VALUES(?, ?, ?, ?)", user_id, vara, antal_vara, pris)  
   end
   
 
@@ -92,14 +94,15 @@ post('/update_varor/:varunamn') do
   user_id = session[:user_id]
   antal_vara = params[:antal]
   db.execute("UPDATE anv_varor_relation SET antal = ? WHERE anv_id = ?", antal_vara, user_id)
-  redirect('/')
+  redirect('/kundvagn')
 end
 
 get('/kundvagn') do
   db = SQLite3::Database.new('data/handlaonline.db')
-  anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
-  anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
   
+  
+  anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
+  anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
   session[:varor] = anv_varor
   session[:antal_varor] = anv_varor_amount
   slim(:kundvagn)

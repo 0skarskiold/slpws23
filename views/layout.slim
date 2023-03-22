@@ -15,7 +15,10 @@ html lang="en"
             a href="/showsignup"
                 h2 Skapa konto 
             - if session[:name] != nil
-               h2 Inloggad som: #{session[:name]} 
+               h2 Inloggad som: #{session[:name]}
+            -if session[:is_admin] == 1
+                h2
+                    a href="/admin" Admingrejer här  
             nav
                 a href="/kundvagn" 
                     h2 Kundvagn
