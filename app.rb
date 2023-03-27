@@ -92,15 +92,14 @@ end
 post('/update_varor/:varunamn') do 
   db = SQLite3::Database.new('data/handlaonline.db')
   user_id = session[:user_id]
+  varunamn = params[:varunamn]
   antal_vara = params[:antal]
-  db.execute("UPDATE anv_varor_relation SET antal = ? WHERE anv_id = ?", antal_vara, user_id)
+  db.execute("UPDATE anv_varor_relation SET antal = ? WHERE anv_id = ? AND varunamn  = ?", antal_vara, user_id, varunamn)
   redirect('/kundvagn')
 end
 
 get('/kundvagn') do
   db = SQLite3::Database.new('data/handlaonline.db')
-  
-  
   anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
   anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", session[:user_id])
   session[:varor] = anv_varor
