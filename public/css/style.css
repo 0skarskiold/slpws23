@@ -45,3 +45,7 @@ a{
     padding-top: 5vh;
     background-color: rgb(226, 229, 222);
 }
+
+#login_link{
+    color: blue;
+}

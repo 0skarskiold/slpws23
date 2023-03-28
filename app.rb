@@ -32,7 +32,9 @@ post('/signup') do
       db.execute("INSERT INTO users (förnamn,efternamn,mail,lösenord,is_admin) VALUES (?,?,?,?,?)",first_name,last_name,mail,password_digest,0)
       redirect('/')
     else
-      "Lösenorden matchade inte :("
+      session[:felmeddelande] = "Lönsenorden matchade inte :("
+      session[:go_back] = "/showsignup"
+      slim(:felmeddelande)
     end
   end
 
@@ -56,7 +58,9 @@ post('/login') do
         session[:is_admin] = result["is_admin"]
         redirect('/')
     else
-      "Fel lösenord"
+      session[:felmeddelande] = "Fel lösenord"
+      session[:go_back] = "/showlogin"
+      slim(:felmeddelande)
     end
   
 end
@@ -66,9 +70,6 @@ end
 post('/additem/:vara_id') do
   vara_id = params[:vara_id] 
   antal_vara = params[:antal]
-  
-
-  
   db = SQLite3::Database.new('data/handlaonline.db')
   vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
   pris = db.execute("SELECT pris FROM varor WHERE id = ?", vara_id)
@@ -78,9 +79,9 @@ post('/additem/:vara_id') do
   double_check = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ? AND varunamn = ?", user_id, vara)
 
   #KOllar om det finns varor av samma sort inlagda tidigare
-  if double_check != []
+  if double_check != [] && antal_vara != ""
     db.execute("UPDATE anv_varor_relation SET antal = ? WHERE varunamn = ? AND anv_id = ?", antal_vara, vara, user_id)
-  else
+  elsif antal_vara != ""
     db.execute("INSERT INTO anv_varor_relation(anv_id, varunamn, antal, enskilt_pris) VALUES(?, ?, ?, ?)", user_id, vara, antal_vara, pris)  
   end
   
