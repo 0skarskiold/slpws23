@@ -1,0 +1,24 @@
+div id="add_vara"
+    h2 Lägg till en vara
+    p Namn
+    form action="/varor/new" method="POST"
+        input type="text" required=1 name="nytt_varunamn" placeholder="Varans namn"
+        p Styckpris:
+        input type="number" name="styckpris" min="1" value="1"
+
+        input type="submit" value="Skapa ny vara!"/
+
+div id="uppdate_vara"
+    h2 Uppdatera vara
+    -@list_of_varor.each do |vara|
+        form action="/varor/#{vara[1]}/update" method="POST"
+            h2 #{vara[1]}
+            input type="text" required=1 name="nytt_varunamn" placeholder="Varans nya namn"
+            p Pris:#{vara[2]}
+            p Nytt pris:
+            input type="number" name="styckpris" id="choose_amount" min="1" value="0"
+            input type="submit" value="Uppdatera"/
+        form action="/admindelete/#{vara[0]}" method="POST"
+            input type="submit" value="Ta bort vara"/
+
+

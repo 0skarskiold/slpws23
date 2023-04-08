@@ -114,3 +114,39 @@ post('/delete/:varunamn') do
   db.execute("DELETE FROM anv_varor_relation WHERE anv_id = ? AND varunamn = ?", session[:user_id], varunamn)
   redirect('/kundvagn')
 end
+
+get('/admin') do 
+  #lägg till varor
+  db = SQLite3::Database.new('data/handlaonline.db')
+  @list_of_varor = db.execute("SELECT * FROM varor")
+
+  slim(:admin)
+end
+
+post('/varor/new') do
+  varunamn = params[:nytt_varunamn]
+  styckpris = params[:styckpris]
+  db = SQLite3::Database.new('data/handlaonline.db')
+  db.execute("INSERT INTO varor (varunamn, pris) VALUES (?, ?)", varunamn, styckpris)
+  redirect('/')
+end
+
+post('/varor/:varunamn/update') do 
+  nytt_varunamn = params[:nytt_varunamn]
+  gammalt_varunamn = params[:varunamn]
+  styckpris = params[:styckpris]
+  db = SQLite3::Database.new('data/handlaonline.db')
+  if gammalt_varunamn == nytt_varunamn
+    db.execute("UPDATE varor SET pris = ? WHERE varunamn = ?", styckpris, gammalt_varunamn)
+  else
+    db.execute("UPDATE varor SET pris = ?, varunamn = ? WHERE varunamn = ?", styckpris, nytt_varunamn, gammalt_varunamn)
+  end
+  redirect('/')
+end
+
+post('/admindelete/:vara_id') do 
+  db = SQLite3::Database.new('data/handlaonline.db')
+  vara_id = params[:vara_id]
+  db.execute("DELETE FROM varor WHERE id=?", vara_id)
+  redirect('/admin')
+end
