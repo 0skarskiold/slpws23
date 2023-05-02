@@ -36,8 +36,8 @@ end
 
 def kundvagn(user_id)
     db = SQLite3::Database.new('data/handlaonline.db')
-    anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", user_id)
-    anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", user_id)
+    @anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", user_id)
+    @anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", user_id)
 end
 
 def delete_vara(user_id, varunamn)

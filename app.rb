@@ -5,6 +5,8 @@ require 'bcrypt'
 enable :sessions
 require_relative 'model.rb'
 
+#Before: KOlla om inloggad/admin
+
 
 get('/')  do
     #Använder jag db koden någonstans?? kolla
@@ -79,8 +81,8 @@ end
 
 get('/kundvagn') do
   kundvagn(session[:user_id])
-  session[:varor] = anv_varor
-  session[:antal_varor] = anv_varor_amount
+  session[:varor] = @anv_varor
+  session[:antal_varor] = @anv_varor_amount
   slim(:kundvagn)
 end
 
@@ -90,7 +92,8 @@ post('/varor/:varunamn/delete') do
 end
 
 get('/admin') do 
-  if session[:is_admin] == true 
+  if session[:is_admin] == 1 
+    admin()
     slim(:admin)
   else
     redirect('/')
@@ -115,7 +118,8 @@ post('/varor/:varunamn/update') do
   redirect('/')
 end
 
-post('/admindelete/:vara_id') do 
+post('/admindelete/:vara_id') do
+  #Kolla om admin skickar 
   db = SQLite3::Database.new('data/handlaonline.db')
   vara_id = params[:vara_id]
   db.execute("DELETE FROM varor WHERE id=?", vara_id)
