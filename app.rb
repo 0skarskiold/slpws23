@@ -6,7 +6,27 @@ enable :sessions
 require_relative 'model.rb'
 
 #Before: KOlla om inloggad/admin
+before("/admin") do 
+  if session[:is_admin] != 1
+    session[:felmeddelande] = "Du är icke admin"
+    session[:go_back] = "/"
+    redirect(:fel)
+  end 
+end
 
+before do
+  restricted_paths = ['/kundvagn', '/varor']
+  if restricted_paths.include?(request.path_info)
+    p session[:user_id]
+    p 'hej'
+    if session[:user_id] == nil
+      p 'what'
+      session[:felmeddelande] = "Du måste logga in för att få se detta"
+      session[:go_back] = "/showlogin"
+      redirect(:fel)
+    end
+  end
+end
 
 get('/')  do
     #Använder jag db koden någonstans?? kolla
@@ -34,9 +54,13 @@ post('/signup') do
     else
       session[:felmeddelande] = "Lönsenorden matchade inte :("
       session[:go_back] = "/showsignup"
-      slim(:felmeddelande)
+      redirect(:fel)
     end
-  end
+end
+
+get('/fel') do 
+  slim(:felmeddelande)
+end
 
 get('/showlogin') do
   slim(:login)
@@ -47,17 +71,25 @@ post('/login') do
   last_name = params[:last_name]
   password = params[:password]
   result = login_user(first_name, last_name)
-  pwdigest = result["lösenord"]
-  if BCrypt::Password.new(pwdigest) == password
-    name = result["förnamn"]
-    session[:name] = name
-    session[:user_id] = result["id"]
-    session[:is_admin] = result["is_admin"]
-    redirect('/')
-  else
-    session[:felmeddelande] = "Fel lösenord"
+  if result == nil 
+    
+    session[:felmeddelande] = "Finns ingen sådan användare"
     session[:go_back] = "/showlogin"
-    slim(:felmeddelande)
+    redirect(:fel)
+  else 
+    pwdigest = result["lösenord"]
+    
+    if BCrypt::Password.new(pwdigest) == password
+      name = result["förnamn"]
+      session[:name] = name
+      session[:user_id] = result["id"]
+      session[:is_admin] = result["is_admin"]
+      redirect('/')
+    else
+      session[:felmeddelande] = "Fel lösenord"
+      session[:go_back] = "/showlogin"
+      redirect(:fel)
+    end
   end
   
 end
