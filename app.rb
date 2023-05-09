@@ -104,7 +104,7 @@ post('/varor/:varunamn/update') do
   varunamn = params[:varunamn]
   antal_vara = params[:antal]
   update_vara(user_id, varunamn, antal_vara)
-  redirect('/')
+  redirect('/kundvagn')
 end
 
 get('/kundvagn') do
