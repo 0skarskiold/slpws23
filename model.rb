@@ -1,11 +1,15 @@
+def set_db()
+    return SQLite3::Database.new('data/handlaonline.db')
+end
+
 def register_user(first_name, last_name, mail,password)
+    db = set_db()
     password_digest = BCrypt::Password.create(password)
-    db = SQLite3::Database.new('data/handlaonline.db')
     db.execute("INSERT INTO users (förnamn,efternamn,mail,lösenord,is_admin) VALUES (?,?,?,?,?)",first_name,last_name,mail,password_digest,0)
 end
 
 def login_user(first_name, last_name)
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     db.results_as_hash = true 
     result = db.execute("SELECT * FROM users WHERE förnamn = ? AND efternamn = ?", first_name, last_name).first
     return result
@@ -13,7 +17,7 @@ def login_user(first_name, last_name)
 end
 
 def additem(vara_id, antal_vara)
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     vara = db.execute("SELECT varunamn FROM varor WHERE id = ?", vara_id)
     pris = db.execute("SELECT pris FROM varor WHERE id = ?", vara_id)
     user_id = session[:user_id]
@@ -30,27 +34,41 @@ def additem(vara_id, antal_vara)
 end
 
 def update_vara(user_id, varunamn, antal_vara)
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     db.execute("UPDATE anv_varor_relation SET antal = ? WHERE anv_id = ? AND varunamn  = ?", antal_vara, user_id, varunamn)
 end
 
 def kundvagn(user_id)
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     @anv_varor_amount = db.execute("SELECT antal FROM anv_varor_relation WHERE anv_id = ?", user_id)
     @anv_varor = db.execute("SELECT * FROM anv_varor_relation WHERE anv_id = ?", user_id)
 end
 
 def delete_vara(user_id, varunamn)
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     db.execute("DELETE FROM anv_varor_relation WHERE anv_id = ? AND varunamn = ?", user_id, varunamn)
 end
 
 def admin()
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     @list_of_varor = db.execute("SELECT * FROM varor")
 end
 
 def varor_new(varunamn, styckpris)
-    db = SQLite3::Database.new('data/handlaonline.db')
+    db = set_db()
     db.execute("INSERT INTO varor (varunamn, pris) VALUES (?, ?)", varunamn, styckpris)
+end
+
+def update_varor_admin(gammalt_varunamn, nytt_varunamn, styckpris)
+    db = set_db()
+    if gammalt_varunamn == nytt_varunamn
+        db.execute("UPDATE varor SET pris = ? WHERE varunamn = ?", styckpris, gammalt_varunamn)
+    else
+        db.execute("UPDATE varor SET pris = ?, varunamn = ? WHERE varunamn = ?", styckpris, nytt_varunamn, gammalt_varunamn)
+  end
+end
+
+def admindelete(vara_id)
+    db = set_db()
+    db.execute("DELETE FROM varor WHERE id=?", vara_id)
 end

@@ -5,7 +5,6 @@ require 'bcrypt'
 enable :sessions
 require_relative 'model.rb'
 
-#Before: KOlla om inloggad/admin
 before("/admin") do 
   if session[:is_admin] != 1
     session[:felmeddelande] = "Du är icke admin"
@@ -17,10 +16,7 @@ end
 before do
   restricted_paths = ['/kundvagn', '/varor']
   if restricted_paths.include?(request.path_info)
-    p session[:user_id]
-    p 'hej'
     if session[:user_id] == nil
-      p 'what'
       session[:felmeddelande] = "Du måste logga in för att få se detta"
       session[:go_back] = "/showlogin"
       redirect(:fel)
@@ -108,7 +104,7 @@ post('/varor/:varunamn/update') do
   varunamn = params[:varunamn]
   antal_vara = params[:antal]
   update_vara(user_id, varunamn, antal_vara)
-  redirect('/kundvagn')
+  redirect('/')
 end
 
 get('/kundvagn') do
@@ -124,12 +120,8 @@ post('/varor/:varunamn/delete') do
 end
 
 get('/admin') do 
-  if session[:is_admin] == 1 
-    admin()
-    slim(:admin)
-  else
-    redirect('/')
-  end
+  admin()
+  slim(:admin)
 end
 
 post('/varor/new') do
@@ -137,23 +129,16 @@ post('/varor/new') do
   redirect('/')
 end
 
-post('/varor/:varunamn/update') do 
+post('/varor/:varunamn/adminupdate') do 
   nytt_varunamn = params[:nytt_varunamn]
   gammalt_varunamn = params[:varunamn]
   styckpris = params[:styckpris]
-  db = SQLite3::Database.new('data/handlaonline.db')
-  if gammalt_varunamn == nytt_varunamn
-    db.execute("UPDATE varor SET pris = ? WHERE varunamn = ?", styckpris, gammalt_varunamn)
-  else
-    db.execute("UPDATE varor SET pris = ?, varunamn = ? WHERE varunamn = ?", styckpris, nytt_varunamn, gammalt_varunamn)
-  end
+  update_varor_admin(gammalt_varunamn, nytt_varunamn, styckpris)
   redirect('/')
 end
 
 post('/admindelete/:vara_id') do
-  #Kolla om admin skickar 
-  db = SQLite3::Database.new('data/handlaonline.db')
   vara_id = params[:vara_id]
-  db.execute("DELETE FROM varor WHERE id=?", vara_id)
+  admindelete(vara_id)
   redirect('/admin')
 end
